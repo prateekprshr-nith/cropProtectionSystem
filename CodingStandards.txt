@@ -1,0 +1,78 @@
+You must strictly adhere to following coding conventions 
+while writing your code:
+
+1) PascalCasing:	ClassNames
+   
+   The names of ant class that you are implementating should
+   be PascalCased.
+   e.g. : 	class SampleClass:
+   				...
+   				...Rest of code
+   				...
+   
+   				
+2) camelCasing:		functionNames, variableNames
+   
+   The names of the variables and the functions that you are
+   declaring/using should be camelCased.
+   e.g. :	def fooFunc(img):
+   				colorImage = cv2.cvtColor(img, cv2.BGR2GRAY)
+   				return colorImage
+   				
+3) Usage of parenthesis:	in arithematical expressions
+   
+   Please use parenthesis explictly to avoid any ambiguity in
+   your expression. Always put a space between the operand and
+   the operator.
+   
+   e.g. :	wrong way -> a = 2 % 3 * 4
+   			right way -> a = (2 % 3) * 4
+   			
+4) Assignment statements:
+
+   Always put a tab or preferably four spaces between an identifier
+   and an assignment operation.
+   e.g. :	wrong way -> colorImage = ...
+   						 grayImg = ...
+   						 
+   			right way -> colorImage	= ...
+   						 grayImg	= ...
+   						 
+5) Documentation and comments:
+
+   Always comment the code which, you think, won't be easy to grasp
+   by some other person. Put the comment before the beginning of a
+   block like:
+   
+   		# Convert the image from color to gray
+   		grayImg	= cv2.cvtColor(colorImg, cv2.BGR2GRAY)
+   		...
+   		...Rest of the code
+   		...
+   
+   For the modules and the functions, always use the triple quoted
+   comments before writing any code, so that pyDoc can parse those
+   comments and show up as a help message.
+   
+   e.g.:	=> Before statring a module
+   
+   			"""
+   			detect.py - The module containing functions
+			for the detection of animals.
+			Author - Prateek Prasher, CSED NITH
+			"""
+			
+			=> In a function
+			def isMotion():
+				"""
+				This function is used to find any motion
+				in the video feed. The function accepts
+				2 images as arguments and return a bool
+				value
+				"""
+				...
+				...Rest of the code
+				...
+			   			    
+6) Last but not the least:
+	HAVE FUN :D 
