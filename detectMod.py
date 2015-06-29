@@ -54,13 +54,7 @@ def blurAndSub(imgNew, imgOld):
     # Now find the difference between 2 images, threshold and dialate
     imgDif      = cv2.absdiff(imgNew, imgOld)
 
-    try:
-        error, imgThresh   = cv2.threshold(imgDif, 35, 255, cv2.THRESH_BINARY)
-        if error:
-            raise
-    except:
-        # Error handling function to be added here, but pass for now
-        pass
+    imgThresh   = cv2.threshold(imgDif, 35, 255, cv2.THRESH_BINARY)[1]
 
     imgDilated  = cv2.dilate(imgThresh, None, iterations=3)
 
@@ -74,11 +68,11 @@ def blurAndSub(imgNew, imgOld):
 def isMotion(imgNew, imgOld):
     """
     This is the fucntion that is used to find any motion in hte image. If there is any motion
-    it returns true and false otherwise
+    it returns true and false otherwise, along with the motion image
 
     :param imgNew: The new image
     :param imgOld: The old image
-    :return: true is motion found, false otherwise
+    :return: true is motion found, false otherwise, along with the motion image
     """
 
     if DEBUG:
@@ -87,6 +81,10 @@ def isMotion(imgNew, imgOld):
     # Find the difference in the frames
     if DEBUG:
         t1 = time.time()
+
+    # Convert to grayscale
+    imgNew = cv2.cvtColor(imgNew, cv2.COLOR_BGR2GRAY)
+    imgOld = cv2.cvtColor(imgOld, cv2.COLOR_BGR2GRAY)
 
     imgDiff = blurAndSub(imgNew, imgOld)
 
@@ -101,8 +99,8 @@ def isMotion(imgNew, imgOld):
         print('Successfully executed isMotion()')
 
     if change > 1000:
-        return True
+        return (True, imgDiff)
     else:
-        return False
+        return (False, imgDiff)
 
 #------------------------------------------------------------------#
