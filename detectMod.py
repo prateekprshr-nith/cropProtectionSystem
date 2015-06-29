@@ -88,6 +88,10 @@ def isMotion(imgNew, imgOld):
     if DEBUG:
         t1 = time.time()
 
+    # Convert to grayscale
+    imgNew = cv2.cvtColor(imgNew, cv2.COLOR_BGR2GRAY)
+    imgOld = cv2.cvtColor(imgOld, cv2.COLOR_BGR2GRAY)
+
     imgDiff = blurAndSub(imgNew, imgOld)
 
     if DEBUG:
