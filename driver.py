@@ -9,10 +9,12 @@ Monday 29 June, 2015
 v 1.0
 """
 
-from detectMod import *
+from detectMod  import *
+from flagMod    import *
+from alertMod   import *
+from logMod     import *
 #import errorMod
 #import logMod
-#import alertMod
 
 # Firstly create a video capture object
 cap = cv2.VideoCapture(0)
