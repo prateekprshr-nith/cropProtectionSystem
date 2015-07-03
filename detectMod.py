@@ -13,13 +13,11 @@ Friday 19 June, 2015
 v 1.0
 """
 
+from flagMod import *
 import cv2
 import time
 import numpy as np
 
-# Set some conditional flags
-RASPI   = True    # If the script is to be executed on a RasPI
-DEBUG   = True    # Print debug messages
 
 
 """
@@ -33,6 +31,7 @@ def blurAndSub(imgNew, imgOld):
     > blur
     > threshold
     > dialate
+    :rtype : tuple
     :param imgNew: The new image
     :param imgOld: The older image
     :return: Returns the processed image
@@ -99,8 +98,16 @@ def isMotion(imgNew, imgOld):
         print('Successfully executed isMotion()')
 
     if change > 1000:
-        return (True, imgDiff)
+        return True, imgDiff
     else:
-        return (False, imgDiff)
+        return False, imgDiff
 
 #------------------------------------------------------------------#
+#------------------------------------------------------------------#
+
+"""
+Animal detection functions
+"""
+
+def isAnimal(img):
+    pass
