@@ -110,4 +110,5 @@ Animal detection functions
 """
 
 def isAnimal(img):
+    # TODO define the animal detection function
     pass
