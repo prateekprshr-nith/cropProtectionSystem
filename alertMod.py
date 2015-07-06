@@ -52,7 +52,7 @@ def gpioSetup():
         print("In gpioSetup()")
 
     GPIO.setmode(GPIO.BCM)
-    GPIO.cleanup()
+    GPIO.setwarnings(False)
 
     # Now setup the pins for output
     for pin in list(pins):
@@ -70,7 +70,7 @@ def ringAlarm():
     This is the function that is used to ring the alarm in case an animal is found in the image.
     The alarm is buzzed for 10 mins
 
-    :return: nothing
+    :return: None
     """
     if DEBUG:
         print("In ringAlarm()")
@@ -94,9 +94,9 @@ def statusLed(status, pid=None):
     -> if arg is 1, the process blinkLed is created.
     -> if arg is 0, the process (pid) is killed and the led is turned solid.
 
-    :arg:status: 1 for blinking, 0 for solid light
-    :arg:pid: the pid of process to be killed
-    :return: pid
+    :param status: 1 for blinking, 0 for solid light
+    :param pid: the pid of process to be killed
+    :return: pid of the blinkLed process
     """
     if DEBUG:
         print("In statusLed()")
@@ -104,10 +104,49 @@ def statusLed(status, pid=None):
     if status == 1:                # Blink the led
         pid = os.fork()
         if pid == 0:
-            os.execl("/helper/blinkLed.py", "/helper/blinkLed.py")
+            os.execl("./helper/blinkLed.py", "./helper/blinkLed.py", str(pins["STATUS_PIN"]))
         else:
             return pid
     else:                          # Turn status led solid
         os.kill(pid, SIGKILL)
         GPIO.output(pins["STATUS_PIN"], 1)
         return None
+
+#------------------------------------------------------------------#
+#------------------------------------------------------------------#
+
+"""
+cameraErrLed() : Blink camera error led
+"""
+
+def cameraErrLed():
+    """
+    This is the function that is used to blink camera err led
+    It blinks if the frame couldn't be read from the camera
+
+    :return: None
+    """
+    if DEBUG:
+        print("In cameraErrLed()")
+
+    pid = os.fork()                 # Blink the led
+    if pid == 0:
+        os.execl("./helper/blinkLed.py", "./helper/blinkLed.py", str(pins["CAMERA_PIN"]))
+
+#------------------------------------------------------------------#
+#------------------------------------------------------------------#
+
+"""
+motionLed() : Light up the motion led on motion
+"""
+
+def motionLed(val):
+    """
+    This is the function that is used to light up the led in case of motion, or turn it off if there is no motion
+    :param val: 1 for lighting the led, 0 for turning it off
+    :return: None
+    """
+    if val == 1:
+        GPIO.output(pins["MOTION_PIN"], 1)
+    else:
+        GPIO.output(pins["MOTION_PIN"], 0)
