@@ -87,7 +87,7 @@ def ringAlarm():
 statusLed() : Toggle status led
 """
 
-def statusLed(status, pid):
+def statusLed(status, pid=None):
     """
     This is the function that is used to blink status led or turn it solid.
     It blinks if system is working fine and turns solid on some error.
@@ -101,13 +101,13 @@ def statusLed(status, pid):
     if DEBUG:
         print("In statusLed()")
 
-    if status == 1:
+    if status == 1:                # Blink the led
         pid = os.fork()
         if pid == 0:
             os.execl("/helper/blinkLed.py", "/helper/blinkLed.py")
         else:
             return pid
-    else:
+    else:                          # Turn status led solid
         os.kill(pid, SIGKILL)
-        GPIO.output(pins["STATUS_PIN"], 1)  # Turn status led solid
+        GPIO.output(pins["STATUS_PIN"], 1)
         return None
