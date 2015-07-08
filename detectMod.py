@@ -9,8 +9,17 @@ functions that will be used directly in the system are:
 Other functions my be present here but they are solely defined for making the code clear, thus play no role individually
 and should not be invoked in the driver program.
 
-Friday 19 June, 2015
-v 1.0
+v1.0
+
+#Change log:
+
+->Edit 1: Friday 19 June, 2015
+  Added the two functions blurAndSub() and isMotion()
+
+->Edit 2: Wednesday 8 July, 2015
+  to be written today
+
+
 """
 
 from flagMod import *
@@ -40,6 +49,10 @@ def blurAndSub(imgNew, imgOld):
     if DEBUG:
         print('In blurAndSub()')
 
+    # Convert to grayscale
+    imgNew = cv2.cvtColor(imgNew, cv2.COLOR_BGR2GRAY)
+    imgOld = cv2.cvtColor(imgOld, cv2.COLOR_BGR2GRAY)
+
     # Resize the image if on a RasPi
     # New image is quarter of the original one
     if RASPI:
@@ -66,7 +79,7 @@ def blurAndSub(imgNew, imgOld):
 
 def isMotion(imgNew, imgOld):
     """
-    This is the fucntion that is used to find any motion in hte image. If there is any motion
+    This is the fucntion that is used to find any motion in the image. If there is any motion
     it returns true and false otherwise, along with the motion image
 
     :param imgNew: The new image
@@ -77,14 +90,10 @@ def isMotion(imgNew, imgOld):
     if DEBUG:
         print('In isMotion()')
 
-    # Find the difference in the frames
     if DEBUG:
         t1 = time.time()
 
-    # Convert to grayscale
-    imgNew = cv2.cvtColor(imgNew, cv2.COLOR_BGR2GRAY)
-    imgOld = cv2.cvtColor(imgOld, cv2.COLOR_BGR2GRAY)
-
+    # Find the difference in the frames
     imgDiff = blurAndSub(imgNew, imgOld)
 
     if DEBUG:
@@ -109,6 +118,60 @@ def isMotion(imgNew, imgOld):
 Animal detection functions
 """
 
-def isAnimal(img):
-    # TODO define the animal detection function
-    pass
+def getRoi(img):
+    """
+    This is the fucntion that is used to get a list of roi's from the motion captured image
+
+    :param img: The binary diff image
+    :return: list of roi in decreasing order of area
+    :rtype : list
+    """
+    if DEBUG:
+        print('In getRoi()')
+
+    # Now find the contours and save their dim and area in a list
+    roi = []
+    _, cnts, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    for c in cnts:
+        # Get the contour area and the bounding rectangle
+        areaNrect = (cv2.contourArea(c), cv2.boundingRect(c))
+
+        # Discard the smaller contours
+        if areaNrect[0] < 1000:
+            continue
+
+        roi.append(areaNrect)
+
+    # Sort the contours on the basis of area, and return 4 with max area
+    roi.sort()
+    return roi
+
+#------------------------------------------------------------------#
+
+def isAnimal(img, imgRef):
+    """
+    This is the fucntion that is used to detect any animal in the motion captured image.
+
+    :param img: The motion captured image
+    :param imgRef: The reference image for background subtraction
+    :return: true if motion is found, false otherwise
+    :rtype: bool
+    """
+    if DEBUG:
+        print('In isAnimal()')
+
+    # Calculate the difference in the images
+    imgDif = blurAndSub(img, imgRef)
+    imgDif  = cv2.dilate(imgDif, None, iterations=22)
+
+    # Now get the list of roi
+    roiVec = getRoi(imgDif)
+
+    # Now try to identify a human. A false value should be returned if a human is found
+    for obj in roiVec:
+        aspectRatio = float(obj[1][2]) / float(obj[1][3])           # width/height
+        extent      = float(obj[0]) / float(obj[1][2] * obj[1][3])  # contour area / rectangle area
+        # TODO find a way to detect animal
+
+
