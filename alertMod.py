@@ -17,7 +17,6 @@ Edit 2: Thursday 2 July, 2015
 Edit 3: Monday 6 July, 2015
 
 """
-# TODO : in the fucntion statusLed, blinkLed script has to be made
 
 from flagMod import *
 import RPi.GPIO as GPIO
@@ -129,7 +128,14 @@ def cameraErrLed():
     if DEBUG:
         print("In cameraErrLed()")
 
-    pid = os.fork()                 # Blink the led
+    try:
+        pid = os.fork()                 # Blink the led
+        if pid < 0:
+            raise OSError
+    except OSError:
+        # TODO add error handling function here
+        pass
+
     if pid == 0:
         os.execl("./helper/blinkLed.py", "./helper/blinkLed.py", str(pins["CAMERA_PIN"]))
 
