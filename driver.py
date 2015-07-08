@@ -15,7 +15,12 @@ from detectMod  import *
 from flagMod    import *
 from alertMod   import *
 from logMod     import *
+import copy
+import time
 #import errorMod
+
+# Set the waiting time for clicking reference images (in seconds)
+REFTIME = 300
 
 # Turn the status led on (1 as argument)
 statusLedPid = statusLed(1)
@@ -23,15 +28,19 @@ statusLedPid = statusLed(1)
 # Firstly create a video capture object
 cap = cv2.VideoCapture(0)
 
-# Capture an old frame
+# Capture an old frame along with a reference image
 try:
     ret, oldFrm = cap.read()
-    if not ret :
-        raise
-except:
+    if not ret:
+        raise AssertionError
+except AssertionError:
     statusLed(0, statusLedPid)  # Turn the status led solid
     cameraErrLed()              # Blink the camera error led
     # TODO Add error handling for camera read error
+
+# Save the reference image and initiate the timer
+refImg  = oldFrm.copy()
+oldTime = time.time()
 
 # Now start the capture loop
 while True:
@@ -39,8 +48,8 @@ while True:
     try:
         ret, newFrm = cap.read()
         if not ret:
-            raise
-    except:
+            raise AssertionError
+    except AssertionError:
         statusLed(0, statusLedPid)  # Turn the status led solid
         cameraErrLed()              # Blink the camera error led
         # TODO Add error handling for camera read error
@@ -57,13 +66,17 @@ while True:
         writeLog()
 
         # Motion is found, now check for any animal in image
-        animal, animalImg = isAnimal(newFrm)
+        animal, animalImg = isAnimal(newFrm, refImg)
 
         # Now if animal is found
         if animal:
             ringAlarm()
     else:
         # Turn off the motion led
+        newTime = time.time()
+        if newTime - oldTime == REFTIME:
+            refImg  = newFrm.copy()
+            oldTime = newTime
         motionLed(0)
 
     oldFrm = newFrm
