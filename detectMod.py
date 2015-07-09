@@ -17,7 +17,12 @@ v1.0
   Added the two functions blurAndSub() and isMotion()
 
 ->Edit 2: Wednesday 8 July, 2015
-  to be written today
+  Added the isAnimal() an getRoi()
+
+->Edit 3: Thurusday 9 July, 2015
+  Added MOTION_THRESH, changed it to 500
+  Added MIN_AREA, changed it to 500
+  Finished the isAnimal() function
 
 
 """
@@ -32,6 +37,8 @@ import numpy as np
 """
 Motion detection functions
 """
+
+MOTION_THRESH = 500
 
 def blurAndSub(imgNew, imgOld):
     """
@@ -106,7 +113,7 @@ def isMotion(imgNew, imgOld):
         print('Change %f' %change)
         print('Successfully executed isMotion()')
 
-    if change > 1000:
+    if change > MOTION_THRESH:
         return True, imgDiff
     else:
         return False, imgDiff
@@ -117,6 +124,8 @@ def isMotion(imgNew, imgOld):
 """
 Animal detection functions
 """
+
+MIN_AREA = 500
 
 def getRoi(img):
     """
@@ -138,7 +147,7 @@ def getRoi(img):
         areaNrect = (cv2.contourArea(c), cv2.boundingRect(c))
 
         # Discard the smaller contours
-        if areaNrect[0] < 1000:
+        if areaNrect[0] < MIN_AREA:
             continue
 
         roi.append(areaNrect)
@@ -146,6 +155,23 @@ def getRoi(img):
     # Sort the contours on the basis of area, and return 4 with max area
     roi.sort()
     return roi
+
+#------------------------------------------------------------------#
+
+def getCorr(imgNew, imgOld):
+    """
+    This is the fucntion that is used to calculate correlation between roi area and old area
+
+    :param imgNew: the extracted roi
+    :param imgOld: the area in reference image
+    :return: correlation in two images
+    :rtype : float
+    """
+    h1 = cv2.calcHist([imgNew], [0], None, [256], [0, 255])
+    h2 = cv2.calcHist([imgOld], [0], None, [256], [0, 255])
+
+    currCorr = cv2.compareHist(h1, h2, cv2.HISTCMP_CORREL)
+    return currCorr
 
 #------------------------------------------------------------------#
 
@@ -172,6 +198,17 @@ def isAnimal(img, imgRef):
     for obj in roiVec:
         aspectRatio = float(obj[1][2]) / float(obj[1][3])           # width/height
         extent      = float(obj[0]) / float(obj[1][2] * obj[1][3])  # contour area / rectangle area
-        # TODO find a way to detect animal
 
+        if DEBUG:
+            print('Aspect ratio: %f' %aspectRatio)
+            print('Extent: %f' %extent)
+        X = obj[1][0]
+        W = obj[1][2]
+        Y = obj[1][1]
+        H = obj[1][3]
+        roiOld = imgRef[Y:Y+H, X:X+W]
+        roiNew = img[Y:Y+H, X:X+W]
+        if aspectRatio > 0.5 and getCorr(roiOld, roiNew) < 0.8:
+            return True
 
+    return False
