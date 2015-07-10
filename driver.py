@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+
 __author__ = 'Prateek Prasher, CSED NITH'
 
 """
@@ -21,6 +24,9 @@ import time
 
 # Set the waiting time for clicking reference images (in seconds)
 REFTIME = 300
+
+# Setup the gpio
+gpioSetup()
 
 # Turn the status led on (1 as argument)
 statusLedPid = statusLed(1)

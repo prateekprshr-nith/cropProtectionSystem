@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 __author__ = 'Prateek Prasher, CSED NITH'
 
 """
@@ -189,7 +191,7 @@ def isAnimal(img, imgRef):
 
     # Calculate the difference in the images
     imgDif = blurAndSub(img, imgRef)
-    imgDif  = cv2.dilate(imgDif, None, iterations=22)
+    imgDif = cv2.dilate(imgDif, None, iterations=22)
 
     # Now get the list of roi
     roiVec = getRoi(imgDif)
@@ -202,13 +204,14 @@ def isAnimal(img, imgRef):
         if DEBUG:
             print('Aspect ratio: %f' %aspectRatio)
             print('Extent: %f' %extent)
+
         X = obj[1][0]
         W = obj[1][2]
         Y = obj[1][1]
         H = obj[1][3]
         roiOld = imgRef[Y:Y+H, X:X+W]
-        roiNew = img[Y:Y+H, X:X+W]
-        if aspectRatio > 0.5 and getCorr(roiOld, roiNew) < 0.8:
+        roiNew = imgRef[Y:Y+H, X:X+W]
+        if aspectRatio > 0.5 and getCorr(img, imgRef) < 0.8:
             return True
 
     return False

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+
 __author__ = 'Prateek Prasher, CSED NITH'
 
 """
@@ -31,7 +34,6 @@ pins = {"ALARM_PIN"     : 12,
         "CAMERA_PIN"    : 21}
 
 SIGKILL = 6 # Signal to be sent to blinkLed process
-
 
 # Time in seconds for which the alarm will run
 ALARM_TIME  = 600
