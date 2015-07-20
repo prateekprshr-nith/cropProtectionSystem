@@ -209,9 +209,15 @@ def isAnimal(img, imgRef):
         W = obj[1][2]
         Y = obj[1][1]
         H = obj[1][3]
+<<<<<<< HEAD
         roiOld = imgRef[Y:Y+H, X:X+W]
         roiNew = imgRef[Y:Y+H, X:X+W]
         if aspectRatio > 0.5 and getCorr(img, imgRef) < 0.8:
+=======
+        roiOld = imgRef[Y : Y + H, X : X + W]
+        roiNew = img[Y : Y + H, X : X + W]
+        if aspectRatio > 0.5 and getCorr(roiOld, roiNew) < 0.8:
+>>>>>>> a9d02e11021123ab078c9441a4f1b66d464993b6
             return True
 
     return False
