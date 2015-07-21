@@ -21,7 +21,7 @@ Edit 3: Monday 6 July, 2015
 
 """
 
-from flagMod import *
+from configFile import *
 import RPi.GPIO as GPIO
 import time
 import os

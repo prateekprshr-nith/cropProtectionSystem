@@ -15,7 +15,7 @@ Edit 2: Monday 6 July, 2015
 """
 
 from detectMod  import *
-from flagMod    import *
+from configFile     import *
 from alertMod   import *
 from logMod     import *
 import copy

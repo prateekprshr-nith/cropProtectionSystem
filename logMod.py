@@ -25,7 +25,7 @@ v 1.0
 import time
 import cv2
 import logging
-from flagMod import *
+from configFile import *
 
 """
 Image saving functions
