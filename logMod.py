@@ -20,11 +20,12 @@ v 1.0
    Added the names of the functions
 -> Edit 2: Friday 10 July, 2015
    Defined saveImg()
+-> Edit 3: Tuesday, 21 July, 2015
+   Defined writeLog(), writeErrLog(), writeDebugLog()
 """
 
 import time
 import cv2
-import logging
 from configFile import *
 
 """
@@ -74,14 +75,84 @@ def saveImg(img):
     except IOError:
         writeErrLog('Couldnt save image at %s' %currAscTime)
 
-#------------------------------------------------------------------#
-#------------------------------------------------------------------#
-
-def writeLog():
-    pass
 
 #------------------------------------------------------------------#
+#------------------------------------------------------------------#
+"""
+Logging functions
+"""
+
+def writeLog(msg):
+    # TODO Add the documentation
+    """
+    :param msg:
+    :return:
+    """
+    # Get the current date and time
+    currAscTime  = time.asctime()
+
+    # Now make the message that has to be written
+    msg = currAscTime + ': ' + msg + '\n'
+
+    # Open the log file and append the message
+    try:
+        log = open('/logs/general/genlog.log', 'a')
+        log.write(msg)
+    except IOError:
+        log.flush()
+        log.close()
+    finally:
+        log.flush()
+        log.close()
+
+
 #------------------------------------------------------------------#
 
 def writeErrLog(msg):
-    pass
+    # TODO Add the documentation
+    """
+    :param msg:
+    :return:
+    """
+    # Get the current date and time
+    currAscTime  = time.asctime()
+
+    # Now make the message that has to be written
+    msg = currAscTime + ': ' + msg + '\n'
+
+    # Open the log file and append the message
+    try:
+        log = open('/logs/error/errlog.log', 'a')
+        log.write(msg)
+    except IOError:
+        log.flush()
+        log.close()
+    finally:
+        log.flush()
+        log.close()
+
+
+#------------------------------------------------------------------#
+
+def writeDebugLog(msg):
+    # TODO Add the documentation
+    """
+    :param msg:
+    :return:
+    """
+    # Get the current date and time
+    currAscTime  = time.asctime()
+
+    # Now make the message that has to be written
+    msg = currAscTime + ': ' + msg + '\n'
+
+    # Open the log file and append the message
+    try:
+        log = open('/logs/debug/debuglog.log', 'a')
+        log.write(msg)
+    except IOError:
+        log.flush()
+        log.close()
+    finally:
+        log.flush()
+        log.close()
