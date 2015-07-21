@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 __author__ = 'Prateek Prasher, CSED NITH'
 
 """
@@ -9,11 +11,28 @@ functions that will be used directly in the system are:
 Other functions my be present here but they are solely defined for making the code clear, thus play no role individually
 and should not be invoked in the driver program.
 
-Friday 19 June, 2015
-v 1.0
+v1.0
+
+#Change log:
+
+->Edit 1: Friday 19 June, 2015
+  Added the two functions blurAndSub() and isMotion()
+
+->Edit 2: Wednesday 8 July, 2015
+  Added the isAnimal() an getRoi()
+
+->Edit 3: Thrusday 9 July, 2015
+  Added MOTION_THRESH, changed it to 500
+  Added MIN_AREA, changed it to 500
+  Finished the isAnimal() function
+
+->Edit 4: Monday 20 July, 2015
+  Defined various parameters for the operations in a seprate module
+
+
 """
 
-from flagMod import *
+from configFile import *
 import cv2
 import time
 import numpy as np
@@ -36,26 +55,32 @@ def blurAndSub(imgNew, imgOld):
     :param imgOld: The older image
     :return: Returns the processed image
     """
+    RASPI = True
+    BLUR_FACTOR = 5
 
     if DEBUG:
         print('In blurAndSub()')
 
+    # Convert to grayscale
+    imgNew = cv2.cvtColor(imgNew, cv2.COLOR_BGR2GRAY)
+    imgOld = cv2.cvtColor(imgOld, cv2.COLOR_BGR2GRAY)
+
     # Resize the image if on a RasPi
     # New image is quarter of the original one
     if RASPI:
-        imgNew = cv2.resize(imgNew, (0, 0), fx=0.5, fy=0.5)
-        imgOld = cv2.resize(imgOld, (0, 0), fx=0.5, fy=0.5)
+        imgNew = cv2.resize(imgNew, (0, 0), fx=SCALE_FACTOR , fy=SCALE_FACTOR)
+        imgOld = cv2.resize(imgOld, (0, 0), fx=SCALE_FACTOR , fy=SCALE_FACTOR)
 
     # Now apply some gaussian blur on the image to reduce noise
-    imgNew = cv2.GaussianBlur(imgNew, (5, 5), 0)
-    imgOld = cv2.GaussianBlur(imgOld, (5, 5), 0)
+    imgNew = cv2.GaussianBlur(imgNew, (BLUR_FACTOR, BLUR_FACTOR), 0)
+    imgOld = cv2.GaussianBlur(imgOld, (BLUR_FACTOR, BLUR_FACTOR), 0)
 
     # Now find the difference between 2 images, threshold and dialate
     imgDif      = cv2.absdiff(imgNew, imgOld)
 
-    imgThresh   = cv2.threshold(imgDif, 35, 255, cv2.THRESH_BINARY)[1]
+    imgThresh   = cv2.threshold(imgDif, THRESH_LEVEL, 255, cv2.THRESH_BINARY)[1]
 
-    imgDilated  = cv2.dilate(imgThresh, None, iterations=3)
+    imgDilated  = cv2.dilate(imgThresh, None, iterations=MOTION_DILATION_FACTOR)
 
     if DEBUG:
         print('Successfully executed blurAndSub()')
@@ -66,7 +91,7 @@ def blurAndSub(imgNew, imgOld):
 
 def isMotion(imgNew, imgOld):
     """
-    This is the fucntion that is used to find any motion in hte image. If there is any motion
+    This is the fucntion that is used to find any motion in the image. If there is any motion
     it returns true and false otherwise, along with the motion image
 
     :param imgNew: The new image
@@ -77,14 +102,10 @@ def isMotion(imgNew, imgOld):
     if DEBUG:
         print('In isMotion()')
 
-    # Find the difference in the frames
     if DEBUG:
         t1 = time.time()
 
-    # Convert to grayscale
-    imgNew = cv2.cvtColor(imgNew, cv2.COLOR_BGR2GRAY)
-    imgOld = cv2.cvtColor(imgOld, cv2.COLOR_BGR2GRAY)
-
+    # Find the difference in the frames
     imgDiff = blurAndSub(imgNew, imgOld)
 
     if DEBUG:
@@ -97,7 +118,7 @@ def isMotion(imgNew, imgOld):
         print('Change %f' %change)
         print('Successfully executed isMotion()')
 
-    if change > 1000:
+    if change > MOTION_THRESH:
         return True, imgDiff
     else:
         return False, imgDiff
@@ -109,5 +130,93 @@ def isMotion(imgNew, imgOld):
 Animal detection functions
 """
 
-def isAnimal(img):
-    pass
+def getRoi(img):
+    """
+    This is the fucntion that is used to get a list of roi's from the motion captured image
+
+    :param img: The binary diff image
+    :return: list of roi in decreasing order of area
+    :rtype : list
+    """
+    if DEBUG:
+        print('In getRoi()')
+
+    # Now find the contours and save their dim and area in a list
+    roi = []
+    _, cnts, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    for c in cnts:
+        # Get the contour area and the bounding rectangle
+        areaNrect = (cv2.contourArea(c), cv2.boundingRect(c))
+
+        # Discard the smaller contours
+        if areaNrect[0] < MIN_DETECTION_AREA:
+            continue
+
+        roi.append(areaNrect)
+
+    # Sort the contours on the basis of area, and return 4 with max area
+    roi.sort()
+    return roi
+
+#------------------------------------------------------------------#
+
+def getCorr(imgNew, imgOld):
+    """
+    This is the fucntion that is used to calculate correlation between roi area and old area
+
+    :param imgNew: the extracted roi
+    :param imgOld: the area in reference image
+    :return: correlation in two images
+    :rtype : float
+    """
+    h1 = cv2.calcHist([imgNew], [0], None, [256], [0, 255])
+    h2 = cv2.calcHist([imgOld], [0], None, [256], [0, 255])
+
+    currCorr = cv2.compareHist(h1, h2, cv2.HISTCMP_CORREL)
+    return currCorr
+
+#------------------------------------------------------------------#
+
+def isAnimal(img, imgRef):
+    """
+    This is the fucntion that is used to detect any animal in the motion captured image.
+
+    :param img: The motion captured image
+    :param imgRef: The reference image for background subtraction
+    :return: true if motion is found, false otherwise
+    :rtype: bool
+    """
+    if DEBUG:
+        print('In isAnimal()')
+
+    # Calculate the difference in the images
+    imgDif = blurAndSub(img, imgRef)
+    imgDif = cv2.dilate(imgDif, None, iterations=DETECTION_DILATION_FACTOR)
+
+    # Now get the list of roi
+    roiVec = getRoi(imgDif)
+
+    # Now try to identify a human. A false value should be returned if a human is found
+    for obj in roiVec:
+        aspectRatio = float(obj[1][2]) / float(obj[1][3])           # width / height
+        extent      = float(obj[0]) / float(obj[1][2] * obj[1][3])  # contour area / rectangle area
+
+
+        X = obj[1][0]
+        W = obj[1][2]
+        Y = obj[1][1]
+        H = obj[1][3]
+        roiOld = imgRef[Y : Y + H, X : X + W]
+        roiNew = imgRef[Y : Y + H, X : X + W]
+        corr   = getCorr(roiOld, roiNew)
+
+        if DEBUG:
+            print('Aspect ratio: %f' %aspectRatio)
+            print('Extent: %f' %extent)
+            print('Correlation: %f' %corr)
+
+        if aspectRatio > MIN_ASPECT_RATIO and corr < MAX_CORR_COFF:
+            return True
+
+    return False
