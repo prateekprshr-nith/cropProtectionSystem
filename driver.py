@@ -15,7 +15,7 @@ Edit 2: Monday 6 July, 2015
 """
 
 from detectMod  import *
-from configFile     import *
+from configFile import *
 from alertMod   import *
 from logMod     import *
 import copy
@@ -69,7 +69,7 @@ while True:
 
         # Save the current image and write the log entry
         saveImg(newFrm)
-        writeLog()
+        writeLog('Image saved after motion was detected')
 
         # Motion is found, now check for any animal in image
         animal, animalImg = isAnimal(newFrm, refImg)
@@ -77,12 +77,15 @@ while True:
         # Now if animal is found
         if animal:
             ringAlarm()
+            writeLog('Animal was found and alarm was sounded.')
     else:
-        # Turn off the motion led
+        # Save a new reference image
         newTime = time.time()
         if newTime - oldTime == REFTIME:
             refImg  = newFrm.copy()
             oldTime = newTime
+
+        # Turn off the motion led
         motionLed(0)
 
     oldFrm = newFrm

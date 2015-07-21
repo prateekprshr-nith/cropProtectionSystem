@@ -11,7 +11,6 @@ Monday, 6th July, 2015
 """
 
 import RPi.GPIO as GPIO
-import os
 import sys
 import signal
 import time
