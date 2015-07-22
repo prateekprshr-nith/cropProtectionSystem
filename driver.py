@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-
-__author__ = 'Prateek Prasher, CSED NITH'
-
 """
+Author : Prateek Prasher, CSED NITH
+
 driver - This is the driver program that contains the main functionality of this system.
 Its work is to capture the frames and feed them to the underlying modules that are responsible
 for animal detection and sounding of buzzers.
@@ -12,15 +11,19 @@ v 1.0
 
 Edit 1: Monday 29 June, 2015
 Edit 2: Monday 6 July, 2015
+Edit 3: Tuesday 21 July, 2015
+Edit 4: Wednesday 22 July, 2015
+
 """
+
+__author__ = 'Prateek Prasher, CSED NITH'
 
 from detectMod  import *
 from configFile import *
 from alertMod   import *
 from logMod     import *
-import copy
 import time
-#import errorMod
+#import errorMod TODO Add the error handling functions
 
 # Set the waiting time for clicking reference images (in seconds)
 REFTIME = 300
@@ -32,7 +35,11 @@ gpioSetup()
 statusLedPid = statusLed(1)
 
 # Firstly create a video capture object
-cap = cv2.VideoCapture(0)
+videoDev = os.listdir('/dev/')
+if 'video0' in videoDev:
+    cap = cv2.VideoCapture(0)
+else:
+    cap = cv2.VideoCapture(1)
 
 # Capture an old frame along with a reference image
 try:
@@ -46,6 +53,10 @@ except AssertionError:
 
 # Save the reference image and initiate the timer
 refImg  = oldFrm.copy()
+
+if  DEBUG:
+    writeDebugLog('Reference image captured.')
+
 oldTime = time.time()
 
 # Now start the capture loop
@@ -85,7 +96,17 @@ while True:
             refImg  = newFrm.copy()
             oldTime = newTime
 
+            if DEBUG:
+                writeDebugLog('Reference image captured.')
+
         # Turn off the motion led
         motionLed(0)
+
+    if VIDEO:
+        cv2.imshow('Live', newFrm)
+        cv2.imshow('Motion', motionImg)
+        cv2.imshow('Detection', animalImg)
+        if cv2.waitKey(5) == ord('q'):
+            cv2.destroyAllWindows()
 
     oldFrm = newFrm

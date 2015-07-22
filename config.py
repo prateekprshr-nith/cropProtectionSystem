@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 
-__author__ = 'Prateek Prasher, CSED NITH'
-
 """
+Author : Prateek Prasher, CSED NITH
+
 config - This is the module that helps to set the various parameters of the system
 
 v1.0
@@ -15,6 +15,8 @@ v1.0
 
 """
 
+__author__ = 'Prateek Prasher, CSED NITH'
+
 import os
 from configFile import *
 
@@ -24,7 +26,9 @@ getInput() - Gets input from the user
 """
 def getInput(msg, valRange):
     """
-
+    This function is used to get the input of the parameters from the user.
+    It also checks for any wrong input that is entered by the user.
+    @:param
     :rtype : int, float
     """
     while True:

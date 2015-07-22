@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-
-__author__ = 'Prateek Prasher, CSED NITH'
-
 """
+Author : Prateek Prasher, CSED NITH
+
 alertMod - This is the module that defines the functions for ringing ararms and lighting various indication lights.
 The main functions that will be used directly in the system are:
 > ringAlarm()
@@ -21,11 +20,14 @@ Edit 3: Monday 6 July, 2015
 
 """
 
+__author__ = 'Prateek Prasher, CSED NITH'
+
+
 from configFile import *
 import RPi.GPIO as GPIO
+from logMod import *
 import time
 import os
-
 
 # BCM Numbering has been used to refer to board pins
 pins = {"ALARM_PIN"     : 12,
@@ -50,6 +52,7 @@ def gpioSetup():
     :return: nothing
     """
     if DEBUG:
+        writeDebugLog('gpioSetup() was executed')
         print("In gpioSetup()")
 
     GPIO.setmode(GPIO.BCM)
@@ -74,6 +77,7 @@ def ringAlarm():
     :return: None
     """
     if DEBUG:
+        writeDebugLog('ringAlarm() was executed')
         print("In ringAlarm()")
 
     GPIO.output(pins["ALARM_PIN"], 1)   # Turn on buzzer
@@ -100,6 +104,7 @@ def statusLed(status, pid=None):
     :return: pid of the blinkLed process
     """
     if DEBUG:
+        writeDebugLog('statusLed() was executed')
         print("In statusLed()")
 
     if status == 1:                # Blink the led
@@ -128,6 +133,7 @@ def cameraErrLed():
     :return: None
     """
     if DEBUG:
+        writeDebugLog('statusLed() was executed')
         print("In cameraErrLed()")
 
     try:

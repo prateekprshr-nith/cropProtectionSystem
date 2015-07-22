@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-__author__ = 'Prateek Prasher, CSED NITH'
-
 """
+Author : Prateek Prasher, CSED NITH
+
 logMod - This is the module that defines the functions for logging various messages and saving the images
 The main functions that will be used directly in the system are:
 > saveImg()
@@ -23,6 +23,8 @@ v 1.0
 -> Edit 3: Tuesday, 21 July, 2015
    Defined writeLog(), writeErrLog(), writeDebugLog()
 """
+
+__author__ = 'Prateek Prasher, CSED NITH'
 
 import time
 import cv2
@@ -83,10 +85,11 @@ Logging functions
 """
 
 def writeLog(msg):
-    # TODO Add the documentation
     """
-    :param msg:
-    :return:
+    This is the function that is used to write a log entry with a custom message.
+    The log can be found at '/logs/general/genlog.log'
+    :param msg: the message to be written in the log
+    :return: None
     """
     # Get the current date and time
     currAscTime  = time.asctime()
@@ -96,12 +99,12 @@ def writeLog(msg):
 
     # Open the log file and append the message
     try:
-        log = open('/logs/general/genlog.log', 'a')
+        log = open('./logs/general/genlog.log', 'a')
         log.write(msg)
     except IOError:
         log.flush()
         log.close()
-    finally:
+    else:
         log.flush()
         log.close()
 
@@ -109,10 +112,11 @@ def writeLog(msg):
 #------------------------------------------------------------------#
 
 def writeErrLog(msg):
-    # TODO Add the documentation
     """
-    :param msg:
-    :return:
+    This is the function that is used to write a error log entry with a custom message.
+    The log can be found at '/logs/error/errlog.log'
+    :param msg: the message to be written in the log
+    :return: None
     """
     # Get the current date and time
     currAscTime  = time.asctime()
@@ -122,12 +126,12 @@ def writeErrLog(msg):
 
     # Open the log file and append the message
     try:
-        log = open('/logs/error/errlog.log', 'a')
+        log = open('./logs/error/errlog.log', 'a')
         log.write(msg)
     except IOError:
         log.flush()
         log.close()
-    finally:
+    else:
         log.flush()
         log.close()
 
@@ -135,10 +139,11 @@ def writeErrLog(msg):
 #------------------------------------------------------------------#
 
 def writeDebugLog(msg):
-    # TODO Add the documentation
     """
-    :param msg:
-    :return:
+    This is the function that is used to write a debug log entry with a custom message.
+    The log can be found at '/logs/debug/debuglog.log'
+    :param msg: the message to be written in the log
+    :return: None
     """
     # Get the current date and time
     currAscTime  = time.asctime()
@@ -148,11 +153,11 @@ def writeDebugLog(msg):
 
     # Open the log file and append the message
     try:
-        log = open('/logs/debug/debuglog.log', 'a')
+        log = open('./logs/debug/debuglog.log', 'a')
         log.write(msg)
     except IOError:
         log.flush()
         log.close()
-    finally:
+    else:
         log.flush()
         log.close()

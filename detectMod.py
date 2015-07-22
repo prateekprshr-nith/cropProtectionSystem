@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-__author__ = 'Prateek Prasher, CSED NITH'
-
 """
+Author : Prateek Prasher, CSED NITH
+
 detectMOd - This is the module that defines the functions for motion detection and object recognition. The main
 functions that will be used directly in the system are:
 > isMotion()
@@ -29,10 +29,16 @@ v1.0
 ->Edit 4: Monday 20 July, 2015
   Defined various parameters for the operations in a seprate module
 
+->Edit 5: Wednesday 22 July, 2015
+  Added the option to see video output in driver
+
 
 """
 
+__author__ = 'Prateek Prasher, CSED NITH'
+
 from configFile import *
+from logMod import *
 import cv2
 import time
 import numpy as np
@@ -139,6 +145,7 @@ def getRoi(img):
     :rtype : list
     """
     if DEBUG:
+        writeDebugLog('Executed getRoi()')
         print('In getRoi()')
 
     # Now find the contours and save their dim and area in a list
@@ -151,6 +158,10 @@ def getRoi(img):
 
         # Discard the smaller contours
         if areaNrect[0] < MIN_DETECTION_AREA:
+
+            if DEBUG:
+                writeDebugLog('Contour area was' + str(areaNrect[0]))
+
             continue
 
         roi.append(areaNrect)
@@ -174,6 +185,10 @@ def getCorr(imgNew, imgOld):
     h2 = cv2.calcHist([imgOld], [0], None, [256], [0, 255])
 
     currCorr = cv2.compareHist(h1, h2, cv2.HISTCMP_CORREL)
+
+    if DEBUG:
+        writeDebugLog('Correlation was' + str(currCorr))
+
     return currCorr
 
 #------------------------------------------------------------------#
@@ -185,7 +200,7 @@ def isAnimal(img, imgRef):
     :param img: The motion captured image
     :param imgRef: The reference image for background subtraction
     :return: true if motion is found, false otherwise
-    :rtype: bool
+    :rtype: bool, image
     """
     if DEBUG:
         print('In isAnimal()')
@@ -202,21 +217,21 @@ def isAnimal(img, imgRef):
         aspectRatio = float(obj[1][2]) / float(obj[1][3])           # width / height
         extent      = float(obj[0]) / float(obj[1][2] * obj[1][3])  # contour area / rectangle area
 
-
         X = obj[1][0]
         W = obj[1][2]
         Y = obj[1][1]
         H = obj[1][3]
         roiOld = imgRef[Y : Y + H, X : X + W]
-        roiNew = imgRef[Y : Y + H, X : X + W]
+        roiNew = img[Y : Y + H, X : X + W]
         corr   = getCorr(roiOld, roiNew)
 
         if DEBUG:
+            writeDebugLog('Aspect raio was ' + str(aspectRatio))
             print('Aspect ratio: %f' %aspectRatio)
             print('Extent: %f' %extent)
             print('Correlation: %f' %corr)
 
         if aspectRatio > MIN_ASPECT_RATIO and corr < MAX_CORR_COFF:
-            return True
+            return True, cv2.rectangle(img, (X, Y), (X + W, Y + H), (255, 255, 255), 2)
 
-    return False
+    return False, img
